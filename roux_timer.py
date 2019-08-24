@@ -64,6 +64,8 @@ def LSE_scramble():
 	global scramble
 	global alternating_6
 	global odd_6
+	global M2
+	global y2
 	cube   			= solved_cube
 	corners			= random.choice(range(4))
 	if corners == 1 or corners == 3:
@@ -119,12 +121,19 @@ def LSE_scramble():
 	scramble_perm = perm.Permutation(11,20,29,38)(6,8,2,0)(18,27,36,9)**corners*perm.Permutation(edge_perm_list)
 
 	cube = scramble_perm(cube)
-	print(cube)
-	printcube(cube)
 	order 			= scramble_perm.order()
 	inv_scramble	= (scramble_perm**(order-2))(cube)
 	empty 			= ""
-	scramble.set(utils.solve(empty.join(inv_scramble), 'Kociemba'))
+	non_M2_scramble = utils.solve(empty.join(inv_scramble), 'Kociemba')
+	M2_scramble = []
+	if m2 == 1:
+		for mv in non_M2_scramble+["M2"]:
+			M2_scramble.append(mv)			#couldn't directly append M2 so did it this way
+		cube = M2(cube)
+	else:
+		M2_scramble = non_M2_scramble
+	printcube(cube)
+	scramble.set(M2_scramble)
 
 def bad_scramble():
 	global cube
