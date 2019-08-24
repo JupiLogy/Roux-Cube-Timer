@@ -1,9 +1,9 @@
 # Roux-Cube-Timer
 A cube timer, with random state Roux scrambles built in! (WIP)
-- [How to install](https://github.com/JupiLogy/Roux-Cube-Timer/new/master?readme=1#how-to-install)
-- [How to open](https://github.com/JupiLogy/Roux-Cube-Timer/new/master?readme=1#how-to-open)
-- [Current Features](https://github.com/JupiLogy/Roux-Cube-Timer/new/master?readme=1#current-features)
-- [Requesting Features](https://github.com/JupiLogy/Roux-Cube-Timer/new/master?readme=1#requesting-features)
+- [How to install](#how-to-install)
+- [How to open](#how-to-open)
+- [Current Features](#current-features)
+- [Requesting Features](#requesting-features)
 
 ## How to install?
 - Download setup.py and roux_timer.py into a folder called roux_timer
