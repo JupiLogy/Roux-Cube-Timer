@@ -4,6 +4,8 @@ import sympy.combinatorics.permutations as perm
 import sympy.combinatorics.generators   as gens
 import numpy							as np
 from tkinter 							import *
+from tkinter.colorchooser 				import askcolor
+from ttictoc 							import tic, toc
 
 """
 	Created by Jupiterian (aka Jeffery, aka JupiLogy).
@@ -53,10 +55,74 @@ from tkinter 							import *
 	49 (Down center)	: WHITE
 """
 
+def reset_cube():
+	global cube, solved_cube
+	cube = solved_cube
+	printcube()
+
 def move_button_press(permutation):
 	global cube
 	cube = permutation(cube)
-	printcube(cube)
+	printcube()
+
+def change_particular_colour(face):
+	global colour_colours, colour_names
+	global cube, colour_win
+	c = face_dict.get(face)
+	for idx, name in enumerate(colour_names):
+		if c == name:
+			colour_colours[idx] = askcolor(
+				initialcolor = colour_colours[idx],
+				title = "Set %s face colour for LSE" % (face)
+				)[1]
+			update_colour_dict(colour_colours)
+			printcube()
+			colour_win.destroy()
+			change_scheme()
+
+def update_colour_dict(colour_colours):
+	global colour_dict
+	colour_dict = {
+		"Y" : colour_colours[0],
+		"B" : colour_colours[1],
+		"R" : colour_colours[2],
+		"G" : colour_colours[3],
+		"O" : colour_colours[4],
+		"W" : colour_colours[5]
+	}
+
+def change_scheme():
+	global colour_win
+	colour_win = Tk()
+	colour_win.geometry("300x200+450+250")
+	colour_win.title("Edit Colour Scheme | RouxTimer")
+	colour_canv = Canvas(colour_win, height = 130, width = 170, bg = "#aaaaaa")
+	colour_canv.pack()
+	cubelets = []
+	csU = colour_canv.create_rectangle(50,  10, 20+60,  20+20,  fill = colour_dict.get("Y"))
+	colour_canv.tag_bind(csU, '<ButtonPress-1>', lambda _: change_particular_colour("U"))
+	csL = colour_canv.create_rectangle(10,  50, 20+20,  20+60,  fill = colour_dict.get("B"))
+	colour_canv.tag_bind(csL, '<ButtonPress-1>', lambda _: change_particular_colour("L"))
+	csF = colour_canv.create_rectangle(50,  50, 20+60,  20+60,  fill = colour_dict.get("R"))
+	colour_canv.tag_bind(csF, '<ButtonPress-1>', lambda _: change_particular_colour("F"))
+	csR = colour_canv.create_rectangle(90,  50, 20+100, 20+60,  fill = colour_dict.get("G"))
+	colour_canv.tag_bind(csR, '<ButtonPress-1>', lambda _: change_particular_colour("R"))
+	csB = colour_canv.create_rectangle(130, 50, 20+140, 20+60,  fill = colour_dict.get("O"))
+	colour_canv.tag_bind(csB, '<ButtonPress-1>', lambda _: change_particular_colour("B"))
+	csD = colour_canv.create_rectangle(50,  90, 20+60,  20+100, fill = colour_dict.get("W"))
+	colour_canv.tag_bind(csD, '<ButtonPress-1>', lambda _: change_particular_colour("D"))
+
+def generate_move_buttons():
+	global move_buttons
+	move_buttons.append(Button(win, text="y2", command= lambda: move_button_press(y2)))
+
+	move_buttons.append(Button(win, text="M",  command= lambda: move_button_press(M )))
+	move_buttons.append(Button(win, text="M2", command= lambda: move_button_press(M2)))
+	move_buttons.append(Button(win, text="M'", command= lambda: move_button_press(Mp)))
+
+	move_buttons.append(Button(win, text="U",  command= lambda: move_button_press(U )))
+	move_buttons.append(Button(win, text="U2", command= lambda: move_button_press(U2)))
+	move_buttons.append(Button(win, text="U'", command= lambda: move_button_press(Up)))
 
 def LSE_scramble():
 	global cube
@@ -66,6 +132,8 @@ def LSE_scramble():
 	global odd_6
 	global M2
 	global y2
+	# global corner_dict
+	# global LSE_dict
 	cube   			= solved_cube
 	corners			= random.choice(range(4))
 	if corners == 1 or corners == 3:
@@ -82,37 +150,6 @@ def LSE_scramble():
 		LSE_pieces_new[i] = perm.Permutation(0,1)(LSE_pieces[i])
 	LSE_pieces_new 	= permn(LSE_pieces_new)
 
-	corner_dict		={
-		0 : 11,
-		1 : 6,
-		2 : 18,
-
-		3 : 20,
-		4 : 8,
-		5 : 27,
-
-		6 : 29,
-		7 : 2,
-		8 : 36,
-
-		9 : 38,
-		10: 0,
-		11: 9
-	}
-	LSE_dict		={
-		0 : 1,
-		1 : 37,
-		2 : 3,
-		3 : 10,
-		4 : 7,
-		5 : 19,
-		6 : 5,
-		7 : 28,
-		8 : 46,
-		9 : 25,
-		10: 52,
-		11: 43 
-	}
 
 	edge_perm_list	= perm.Permutation(53).list()
 	for i in range(12):
@@ -132,18 +169,19 @@ def LSE_scramble():
 		cube = M2(cube)
 	else:
 		M2_scramble = non_M2_scramble
-	printcube(cube)
+	printcube()
 	scramble.set(M2_scramble)
 
 def bad_scramble():
 	global cube
 	cube = []
 	for i in range(54):
-		cube.append(random.choice(colours))
-	printcube(cube)
+		cube.append(random.choice(colour_names))
+	printcube()
 	mainloop()
 
-def printcube(cube):
+def printcube():
+	global cube
 	cubelets = []
 	for x in range(3):
 		for y in range(3):
@@ -194,53 +232,84 @@ def generate_groups():
 	alternating_6	= list(gens.alternating(6))
 	odd_6 = [x for x in list(gens.symmetric(6)) if x not in alternating_6]
 
-colours = ["Y","B","R","G","O","W"]
-colour_dict = {
-	"Y" : "#ffff00",
-	"W" : "#ffffff",
-	"R" : "#ff0000",
-	"O" : "#ffa500",
-	"B" : "#2222ff",
-	"G" : "#00ff00"
+colour_names = ["Y","B","R","G","O","W"]
+colour_colours = ["#ffff00", "#2222ff", "#ff0000", "#00ff00", "#ffa500", "#ffffff"]
+update_colour_dict(colour_colours)
+
+face_dict = {
+	"U" : "Y",
+	"L" : "B",
+	"F" : "R",
+	"R" : "G",
+	"B" : "O",
+	"D" : "W"
 }
+# corner_dict	= {
+# 	0 : 11,
+# 	1 : 6,
+# 	2 : 18,
+
+# 	3 : 20,
+# 	4 : 8,
+# 	5 : 27,
+
+# 	6 : 29,
+# 	7 : 2,
+# 	8 : 36,
+
+# 	9 : 38,
+# 	10: 0,
+# 	11: 9
+# }
+# LSE_dict = {
+# 	0 : 1,
+# 	1 : 37,
+# 	2 : 3,
+# 	3 : 10,
+# 	4 : 7,
+# 	5 : 19,
+# 	6 : 5,
+# 	7 : 28,
+# 	8 : 46,
+# 	9 : 25,
+# 	10: 52,
+# 	11: 43 
+# }
 
 default_cube = perm.Permutation(53)
 
 win = Tk()
-win.geometry("300x200")
+win.geometry("300x230+400+200")
 win.title("RouxTimer")
 
 cube_space = Canvas(win , height = 130, width = 170, bg = "#aaaaaa")
-cube_space.pack(side=TOP)
 
 solved_cube = []
-for colour in colours:
+for colour in colour_names:
 	for cubie in range(9):
 		solved_cube.append(colour)
-cube = solved_cube
-
-scramble_button = Button(win, text="LSE", command=LSE_scramble)
-scramble_button.pack()
+reset_cube()
 
 y2, M, M2, Mp, U, U2, Up = generate_moves()
 generate_groups()
-
 move_buttons = []
-move_buttons.append(Button(win, text="y2", command= lambda: move_button_press(y2)))
+#generate_move_buttons()
 
-move_buttons.append(Button(win, text="M",  command= lambda: move_button_press(M )))
-move_buttons.append(Button(win, text="M2", command= lambda: move_button_press(M2)))
-move_buttons.append(Button(win, text="M'", command= lambda: move_button_press(Mp)))
+solved_cube_button = Button(win, text = "Show solved cube", command = reset_cube)
 
-move_buttons.append(Button(win, text="U",  command= lambda: move_button_press(U )))
-move_buttons.append(Button(win, text="U2", command= lambda: move_button_press(U2)))
-move_buttons.append(Button(win, text="U'", command= lambda: move_button_press(Up)))
+scramble_button = Button(win, text = "LSE", command=LSE_scramble)
 
-# for b in move_buttons:
-# 	b.pack()
+change_scheme_button = Button(win, text = "Change colour scheme", command = change_scheme)
 
 scramble = StringVar()
-Label(win,textvariable=scramble).pack()
 
-printcube(solved_cube)
+change_scheme_button.pack()
+scramble_button.pack()
+cube_space.pack()
+for b in move_buttons:
+	b.pack()
+Label(win,textvariable=scramble).pack()
+solved_cube_button.pack()
+
+printcube()
 mainloop()

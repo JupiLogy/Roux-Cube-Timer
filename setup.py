@@ -5,5 +5,5 @@ setup(name 				= 'roux_timer',
 	author 				= 'Jeffery Dick',
 	author_email 		= 'jupiterian.is@gmail.com',
 	url 				= 'https://github.com/JupiLogy/Roux-Cube-Timer',
-	install_requires	= ['rubik-solver', 'sympy', 'numpy']
+	install_requires	= ['rubik-solver', 'sympy', 'numpy', 'ttictoc']
 	)
