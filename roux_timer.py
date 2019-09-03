@@ -1,13 +1,10 @@
 from rubik_solver 						import utils
-import pickle
 import random
 import sympy.combinatorics.permutations as perm
 import sympy.combinatorics.generators   as gens
 import numpy							as np
 from tkinter 							import *
 from tkinter.colorchooser 				import askcolor
-from ttictoc 							import tic, toc
-import os.path
 
 """
 	Created by Jupiterian (aka Jeffery, aka JupiLogy).
@@ -198,9 +195,6 @@ class roux_timer():
 		colour_canv.tag_bind(csD, '<ButtonPress-1>', lambda _: self.change_particular_colour("D"))
 
 	def LSE_scramble(self):
-		global scramble
-		global M2
-		global y2
 		self.cube   	= SOLVED_CUBE
 		corners			= random.choice(range(4))
 		if corners == 1 or corners == 3:
@@ -210,7 +204,6 @@ class roux_timer():
 		flip   			= random.choice(range(4))
 		orient 			= random.sample(range(6), flip*2)
 		m2 				= random.choice(range(2))
-		corner_pieces 	= np.array([[11, 6, 18], [20, 8, 27], [29, 2, 36], [38, 0, 9]])
 		LSE_pieces 		= np.array([[1, 37], [3, 10], [7, 19], [5, 28], [46, 25], [52, 43]])
 		LSE_pieces_new	= LSE_pieces
 		for i in orient:
@@ -238,20 +231,14 @@ class roux_timer():
 		self.print_cube()
 		self.scramble.set(M2_scramble)
 
-	def bad_scramble(self):
-		self.cube = []
-		for i in range(54):
-			self.cube.append(random.choice(COLOUR_NAMES))
-		self.print_cube()
-
 	def print_cube(self):
 		for x in range(3):
 			for y in range(3):
-				cU = self.cube_space.create_rectangle(10*x+50,  10*y+10, 10*x+60,  10*y+20,  fill = self.colour_dict.get(self.cube[x+3*y   ]))
-				cL = self.cube_space.create_rectangle(10*x+10,  10*y+50, 10*x+20,  10*y+60,  fill = self.colour_dict.get(self.cube[x+3*y+9 ]))
-				cF = self.cube_space.create_rectangle(10*x+50,  10*y+50, 10*x+60,  10*y+60,  fill = self.colour_dict.get(self.cube[x+3*y+18]))
-				cR = self.cube_space.create_rectangle(10*x+90,  10*y+50, 10*x+100, 10*y+60,  fill = self.colour_dict.get(self.cube[x+3*y+27]))
-				cB = self.cube_space.create_rectangle(10*x+130, 10*y+50, 10*x+140, 10*y+60,  fill = self.colour_dict.get(self.cube[x+3*y+36]))
-				cD = self.cube_space.create_rectangle(10*x+50,  10*y+90, 10*x+60,  10*y+100, fill = self.colour_dict.get(self.cube[x+3*y+45]))
+				self.cube_space.create_rectangle(10*x+50,  10*y+10, 10*x+60,  10*y+20,  fill = self.colour_dict.get(self.cube[x+3*y   ]))
+				self.cube_space.create_rectangle(10*x+10,  10*y+50, 10*x+20,  10*y+60,  fill = self.colour_dict.get(self.cube[x+3*y+9 ]))
+				self.cube_space.create_rectangle(10*x+50,  10*y+50, 10*x+60,  10*y+60,  fill = self.colour_dict.get(self.cube[x+3*y+18]))
+				self.cube_space.create_rectangle(10*x+90,  10*y+50, 10*x+100, 10*y+60,  fill = self.colour_dict.get(self.cube[x+3*y+27]))
+				self.cube_space.create_rectangle(10*x+130, 10*y+50, 10*x+140, 10*y+60,  fill = self.colour_dict.get(self.cube[x+3*y+36]))
+				self.cube_space.create_rectangle(10*x+50,  10*y+90, 10*x+60,  10*y+100, fill = self.colour_dict.get(self.cube[x+3*y+45]))
 
 timer = roux_timer()
