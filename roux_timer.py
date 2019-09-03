@@ -1,4 +1,5 @@
 from rubik_solver 						import utils
+import pickle
 import random
 import sympy.combinatorics.permutations as perm
 import sympy.combinatorics.generators   as gens
@@ -6,6 +7,7 @@ import numpy							as np
 from tkinter 							import *
 from tkinter.colorchooser 				import askcolor
 from ttictoc 							import tic, toc
+import os.path
 
 """
 	Created by Jupiterian (aka Jeffery, aka JupiLogy).
@@ -55,151 +57,32 @@ from ttictoc 							import tic, toc
 	49 (Down center)	: WHITE
 """
 
-def reset_cube():
-	global cube, solved_cube
-	cube = solved_cube
-	printcube()
+COLOUR_NAMES = ["Y","B","R","G","O","W"]
+FACE_DICT = {
+	"U" : "Y",
+	"L" : "B",
+	"F" : "R",
+	"R" : "G",
+	"B" : "O",
+	"D" : "W"
+}
 
-def move_button_press(permutation):
-	global cube
-	cube = permutation(cube)
-	printcube()
+DEFAULT_CUBE = perm.Permutation(53)
+SOLVED_CUBE = []
+for colour in COLOUR_NAMES:
+	for cubie in range(9):
+		SOLVED_CUBE.append(colour)
 
-def change_particular_colour(face):
-	global colour_colours, colour_names
-	global cube, colour_win
-	c = face_dict.get(face)
-	for idx, name in enumerate(colour_names):
-		if c == name:
-			colour_colours[idx] = askcolor(
-				initialcolor = colour_colours[idx],
-				title = "Set %s face colour for LSE" % (face)
-				)[1]
-			update_colour_dict(colour_colours)
-			printcube()
-			colour_win.destroy()
-			change_scheme()
-
-def update_colour_dict(colour_colours):
-	global colour_dict
-	colour_dict = {
-		"Y" : colour_colours[0],
-		"B" : colour_colours[1],
-		"R" : colour_colours[2],
-		"G" : colour_colours[3],
-		"O" : colour_colours[4],
-		"W" : colour_colours[5]
-	}
-
-def change_scheme():
-	global colour_win
-	colour_win = Tk()
-	colour_win.geometry("300x200+450+250")
-	colour_win.title("Edit Colour Scheme | RouxTimer")
-	colour_canv = Canvas(colour_win, height = 130, width = 170, bg = "#aaaaaa")
-	colour_canv.pack()
-	cubelets = []
-	csU = colour_canv.create_rectangle(50,  10, 20+60,  20+20,  fill = colour_dict.get("Y"))
-	colour_canv.tag_bind(csU, '<ButtonPress-1>', lambda _: change_particular_colour("U"))
-	csL = colour_canv.create_rectangle(10,  50, 20+20,  20+60,  fill = colour_dict.get("B"))
-	colour_canv.tag_bind(csL, '<ButtonPress-1>', lambda _: change_particular_colour("L"))
-	csF = colour_canv.create_rectangle(50,  50, 20+60,  20+60,  fill = colour_dict.get("R"))
-	colour_canv.tag_bind(csF, '<ButtonPress-1>', lambda _: change_particular_colour("F"))
-	csR = colour_canv.create_rectangle(90,  50, 20+100, 20+60,  fill = colour_dict.get("G"))
-	colour_canv.tag_bind(csR, '<ButtonPress-1>', lambda _: change_particular_colour("R"))
-	csB = colour_canv.create_rectangle(130, 50, 20+140, 20+60,  fill = colour_dict.get("O"))
-	colour_canv.tag_bind(csB, '<ButtonPress-1>', lambda _: change_particular_colour("B"))
-	csD = colour_canv.create_rectangle(50,  90, 20+60,  20+100, fill = colour_dict.get("W"))
-	colour_canv.tag_bind(csD, '<ButtonPress-1>', lambda _: change_particular_colour("D"))
-
-def generate_move_buttons():
-	global move_buttons
-	move_buttons.append(Button(win, text="y2", command= lambda: move_button_press(y2)))
-
-	move_buttons.append(Button(win, text="M",  command= lambda: move_button_press(M )))
-	move_buttons.append(Button(win, text="M2", command= lambda: move_button_press(M2)))
-	move_buttons.append(Button(win, text="M'", command= lambda: move_button_press(Mp)))
-
-	move_buttons.append(Button(win, text="U",  command= lambda: move_button_press(U )))
-	move_buttons.append(Button(win, text="U2", command= lambda: move_button_press(U2)))
-	move_buttons.append(Button(win, text="U'", command= lambda: move_button_press(Up)))
-
-def LSE_scramble():
-	global cube
-	global solved_cube
-	global scramble
-	global alternating_6
-	global odd_6
-	global M2
-	global y2
-	# global corner_dict
-	# global LSE_dict
-	cube   			= solved_cube
-	corners			= random.choice(range(4))
-	if corners == 1 or corners == 3:
-		permn 		= random.choice(odd_6)
-	else:
-		permn  		= random.choice(alternating_6)
-	flip   			= random.choice(range(4))
-	orient 			= random.sample(range(6), flip*2)
-	m2 				= random.choice(range(2))
-	corner_pieces 	= np.array([[11, 6, 18], [20, 8, 27], [29, 2, 36], [38, 0, 9]])
-	LSE_pieces 		= np.array([[1, 37], [3, 10], [7, 19], [5, 28], [46, 25], [52, 43]])
-	LSE_pieces_new	= LSE_pieces
-	for i in orient:
-		LSE_pieces_new[i] = perm.Permutation(0,1)(LSE_pieces[i])
-	LSE_pieces_new 	= permn(LSE_pieces_new)
-
-
-	edge_perm_list	= perm.Permutation(53).list()
-	for i in range(12):
-		edge_perm_list[np.asarray(LSE_pieces).reshape(12)[i]] = np.asarray(LSE_pieces_new).reshape(12)[i]
-
-	scramble_perm = perm.Permutation(11,20,29,38)(6,8,2,0)(18,27,36,9)**corners*perm.Permutation(edge_perm_list)
-
-	cube = scramble_perm(cube)
-	order 			= scramble_perm.order()
-	inv_scramble	= (scramble_perm**(order-2))(cube)
-	empty 			= ""
-	non_M2_scramble = utils.solve(empty.join(inv_scramble), 'Kociemba')
-	M2_scramble = []
-	if m2 == 1:
-		for mv in non_M2_scramble+["M2"]:
-			M2_scramble.append(mv)			#couldn't directly append M2 so did it this way
-		cube = M2(cube)
-	else:
-		M2_scramble = non_M2_scramble
-	printcube()
-	scramble.set(M2_scramble)
-
-def bad_scramble():
-	global cube
-	cube = []
-	for i in range(54):
-		cube.append(random.choice(colour_names))
-	printcube()
-	mainloop()
-
-def printcube():
-	global cube
-	cubelets = []
-	for x in range(3):
-		for y in range(3):
-			cU = cube_space.create_rectangle(10*x+50,  10*y+10, 10*x+60,  10*y+20,  fill = colour_dict.get(cube[x+3*y   ]))
-			cL = cube_space.create_rectangle(10*x+10,  10*y+50, 10*x+20,  10*y+60,  fill = colour_dict.get(cube[x+3*y+9 ]))
-			cF = cube_space.create_rectangle(10*x+50,  10*y+50, 10*x+60,  10*y+60,  fill = colour_dict.get(cube[x+3*y+18]))
-			cR = cube_space.create_rectangle(10*x+90,  10*y+50, 10*x+100, 10*y+60,  fill = colour_dict.get(cube[x+3*y+27]))
-			cB = cube_space.create_rectangle(10*x+130, 10*y+50, 10*x+140, 10*y+60,  fill = colour_dict.get(cube[x+3*y+36]))
-			cD = cube_space.create_rectangle(10*x+50,  10*y+90, 10*x+60,  10*y+100, fill = colour_dict.get(cube[x+3*y+45]))
+DEFAULT_PERM = perm.Permutation(53)
 
 def generate_moves():
-	y2 = default_cube
-	M2 = default_cube
-	M  = default_cube
-	Mp = default_cube
-	U  = default_cube
-	U2 = default_cube
-	Up = default_cube
+	y2 = DEFAULT_CUBE
+	M2 = DEFAULT_CUBE
+	M  = DEFAULT_CUBE
+	Mp = DEFAULT_CUBE
+	U  = DEFAULT_CUBE
+	U2 = DEFAULT_CUBE
+	Up = DEFAULT_CUBE
 
 	for cubelet in range(9):
 		y2 = y2*perm.Permutation(cubelet,    cubelet+45)							#Swaps U and D faces
@@ -227,89 +110,148 @@ def generate_moves():
 	return [y2, M, M2, Mp, U, U2, Up]
 
 def generate_groups():
-	global alternating_6
-	global odd_6
-	alternating_6	= list(gens.alternating(6))
-	odd_6 = [x for x in list(gens.symmetric(6)) if x not in alternating_6]
-
-colour_names = ["Y","B","R","G","O","W"]
-colour_colours = ["#ffff00", "#2222ff", "#ff0000", "#00ff00", "#ffa500", "#ffffff"]
-update_colour_dict(colour_colours)
-
-face_dict = {
-	"U" : "Y",
-	"L" : "B",
-	"F" : "R",
-	"R" : "G",
-	"B" : "O",
-	"D" : "W"
-}
-# corner_dict	= {
-# 	0 : 11,
-# 	1 : 6,
-# 	2 : 18,
-
-# 	3 : 20,
-# 	4 : 8,
-# 	5 : 27,
-
-# 	6 : 29,
-# 	7 : 2,
-# 	8 : 36,
-
-# 	9 : 38,
-# 	10: 0,
-# 	11: 9
-# }
-# LSE_dict = {
-# 	0 : 1,
-# 	1 : 37,
-# 	2 : 3,
-# 	3 : 10,
-# 	4 : 7,
-# 	5 : 19,
-# 	6 : 5,
-# 	7 : 28,
-# 	8 : 46,
-# 	9 : 25,
-# 	10: 52,
-# 	11: 43 
-# }
-
-default_cube = perm.Permutation(53)
-
-win = Tk()
-win.geometry("300x230+400+200")
-win.title("RouxTimer")
-
-cube_space = Canvas(win , height = 130, width = 170, bg = "#aaaaaa")
-
-solved_cube = []
-for colour in colour_names:
-	for cubie in range(9):
-		solved_cube.append(colour)
-reset_cube()
+	alternating_6	= list(gens.alternating(6 ))
+	odd_6 			= [x for x in list(gens.symmetric(6 )) if x not in alternating_6 ]
+	return alternating_6, odd_6
 
 y2, M, M2, Mp, U, U2, Up = generate_moves()
-generate_groups()
-move_buttons = []
-#generate_move_buttons()
+a_6, o_6 = generate_groups()
 
-solved_cube_button = Button(win, text = "Show solved cube", command = reset_cube)
+class roux_timer():
 
-scramble_button = Button(win, text = "LSE", command=LSE_scramble)
+	def __init__(self):
 
-change_scheme_button = Button(win, text = "Change colour scheme", command = change_scheme)
+		self.win = Tk()
+		self.win.geometry("450x190+400+200")
+		self.win.title("RouxTimer")
 
-scramble = StringVar()
+		self.left_win  = Frame(self.win, borderwidth = 1, relief = "solid", width = 50)
+		self.right_win = Frame(self.win, borderwidth = 0, relief = "solid")
 
-change_scheme_button.pack()
-scramble_button.pack()
-cube_space.pack()
-for b in move_buttons:
-	b.pack()
-Label(win,textvariable=scramble).pack()
-solved_cube_button.pack()
+		self.cube_space = Canvas(self.left_win , height = 130, width = 170, bg = "#aaaaaa")
+		self.solved_cube_button = Button(self.left_win, text = "Show solved cube", command = self.reset_cube)
+		self.scramble_button = Button(self.right_win, text = "LSE", command = self.LSE_scramble)
 
-printcube()
-mainloop()
+		self.change_scheme_button = Button(self.left_win, text = "Change colour scheme", command = self.change_scheme)
+		self.colour_colours = ["#ffff00", "#2222ff", "#ff0000", "#00ff00", "#ffa500", "#ffffff"]
+		self.update_colour_dict()
+
+		self.scramble = StringVar()
+
+		self.left_win .pack(side = "left" , fill = "y")
+		self.right_win.pack(side = "right", expand = True, fill = "both")
+
+		self.cube_space.pack()
+		Label(self.right_win, textvariable = self.scramble).pack()
+		self.scramble_button.pack()
+		self.solved_cube_button.pack()
+		self.change_scheme_button.pack()
+
+		self.reset_cube()		#Generates solved self.cube
+		self.print_cube()
+		mainloop()
+
+	def reset_cube(self):
+		self.cube = SOLVED_CUBE
+		self.print_cube()
+
+	def change_particular_colour(self, face):
+		c = FACE_DICT.get(face)
+		for idx, name in enumerate(COLOUR_NAMES):
+			if c == name:
+				self.colour_colours[idx] = askcolor(
+					initialcolor = self.colour_colours[idx],
+					title = "Set %s face colour for LSE" % (face)
+					)[1]
+				self.update_colour_dict()
+				self.print_cube()
+				self.colour_win.destroy()
+				self.change_scheme()
+
+	def update_colour_dict(self):
+		self.colour_dict = {
+			"Y" : self.colour_colours[0],
+			"B" : self.colour_colours[1],
+			"R" : self.colour_colours[2],
+			"G" : self.colour_colours[3],
+			"O" : self.colour_colours[4],
+			"W" : self.colour_colours[5]
+		}
+
+	def change_scheme(self):
+		self.colour_win = Tk()
+		self.colour_win.geometry("300x200+450+250")
+		self.colour_win.title("Edit Colour Scheme | RouxTimer")
+		colour_canv = Canvas(self.colour_win, height = 130, width = 170, bg = "#aaaaaa")
+		colour_canv.pack()
+		csU = colour_canv.create_rectangle(50,  10, 20+60,  20+20,  fill = self.colour_dict.get("Y"))
+		colour_canv.tag_bind(csU, '<ButtonPress-1>', lambda _: self.change_particular_colour("U"))
+		csL = colour_canv.create_rectangle(10,  50, 20+20,  20+60,  fill = self.colour_dict.get("B"))
+		colour_canv.tag_bind(csL, '<ButtonPress-1>', lambda _: self.change_particular_colour("L"))
+		csF = colour_canv.create_rectangle(50,  50, 20+60,  20+60,  fill = self.colour_dict.get("R"))
+		colour_canv.tag_bind(csF, '<ButtonPress-1>', lambda _: self.change_particular_colour("F"))
+		csR = colour_canv.create_rectangle(90,  50, 20+100, 20+60,  fill = self.colour_dict.get("G"))
+		colour_canv.tag_bind(csR, '<ButtonPress-1>', lambda _: self.change_particular_colour("R"))
+		csB = colour_canv.create_rectangle(130, 50, 20+140, 20+60,  fill = self.colour_dict.get("O"))
+		colour_canv.tag_bind(csB, '<ButtonPress-1>', lambda _: self.change_particular_colour("B"))
+		csD = colour_canv.create_rectangle(50,  90, 20+60,  20+100, fill = self.colour_dict.get("W"))
+		colour_canv.tag_bind(csD, '<ButtonPress-1>', lambda _: self.change_particular_colour("D"))
+
+	def LSE_scramble(self):
+		global scramble
+		global M2
+		global y2
+		self.cube   	= SOLVED_CUBE
+		corners			= random.choice(range(4))
+		if corners == 1 or corners == 3:
+			permn 		= random.choice(o_6)
+		else:
+			permn  		= random.choice(a_6)
+		flip   			= random.choice(range(4))
+		orient 			= random.sample(range(6), flip*2)
+		m2 				= random.choice(range(2))
+		corner_pieces 	= np.array([[11, 6, 18], [20, 8, 27], [29, 2, 36], [38, 0, 9]])
+		LSE_pieces 		= np.array([[1, 37], [3, 10], [7, 19], [5, 28], [46, 25], [52, 43]])
+		LSE_pieces_new	= LSE_pieces
+		for i in orient:
+			LSE_pieces_new[i] = perm.Permutation(0,1)(LSE_pieces[i])
+		LSE_pieces_new 	= permn(LSE_pieces_new)
+
+		edge_perm_list	= perm.Permutation(53).list()
+		for i in range(12):
+			edge_perm_list[np.asarray(LSE_pieces).reshape(12)[i]] = np.asarray(LSE_pieces_new).reshape(12)[i]
+
+		scramble_perm = perm.Permutation(11,20,29,38)(6,8,2,0)(18,27,36,9)**corners*perm.Permutation(edge_perm_list)
+
+		self.cube = scramble_perm(self.cube)
+		order 			= scramble_perm.order()
+		inv_scramble	= (scramble_perm**(order-2))(self.cube)
+		empty 			= ""
+		non_M2_scramble = utils.solve(empty.join(inv_scramble), 'Kociemba')
+		M2_scramble = []
+		if m2 == 1:
+			for mv in non_M2_scramble+["M2"]:
+				M2_scramble.append(mv)			#couldn't directly append M2 so did it this way
+			self.cube = M2(self.cube)
+		else:
+			M2_scramble = non_M2_scramble
+		self.print_cube()
+		self.scramble.set(M2_scramble)
+
+	def bad_scramble(self):
+		self.cube = []
+		for i in range(54):
+			self.cube.append(random.choice(COLOUR_NAMES))
+		self.print_cube()
+
+	def print_cube(self):
+		for x in range(3):
+			for y in range(3):
+				cU = self.cube_space.create_rectangle(10*x+50,  10*y+10, 10*x+60,  10*y+20,  fill = self.colour_dict.get(self.cube[x+3*y   ]))
+				cL = self.cube_space.create_rectangle(10*x+10,  10*y+50, 10*x+20,  10*y+60,  fill = self.colour_dict.get(self.cube[x+3*y+9 ]))
+				cF = self.cube_space.create_rectangle(10*x+50,  10*y+50, 10*x+60,  10*y+60,  fill = self.colour_dict.get(self.cube[x+3*y+18]))
+				cR = self.cube_space.create_rectangle(10*x+90,  10*y+50, 10*x+100, 10*y+60,  fill = self.colour_dict.get(self.cube[x+3*y+27]))
+				cB = self.cube_space.create_rectangle(10*x+130, 10*y+50, 10*x+140, 10*y+60,  fill = self.colour_dict.get(self.cube[x+3*y+36]))
+				cD = self.cube_space.create_rectangle(10*x+50,  10*y+90, 10*x+60,  10*y+100, fill = self.colour_dict.get(self.cube[x+3*y+45]))
+
+timer = roux_timer()
