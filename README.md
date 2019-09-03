@@ -1,4 +1,7 @@
 # Roux-Cube-Timer
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ad82c1eddb8e4881a98d71255e035ee9)](https://app.codacy.com/app/jupiterian.is/Roux-Cube-Timer?utm_source=github.com&utm_medium=referral&utm_content=JupiLogy/Roux-Cube-Timer&utm_campaign=Badge_Grade_Dashboard)
+
 A cube timer, with random state Roux scrambles built in! (WIP)
 	- [How to install](#how-to-install)
 	- [How to open](#how-to-open)
