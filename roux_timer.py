@@ -7,14 +7,7 @@ from tkinter 							import *
 from tkinter.colorchooser 				import askcolor
 
 """
-	Created by Jupiterian (aka Jeffery, aka JupiLogy).
 	https://github.com/JupiLogy/Roux-Cube-Timer/
-
-	Terms:
-		Code may be edited and redistributed,
-		but do not remove these terms,
-		do not remove the author's name,
-		and do not use for monetary gain.
 
 	Cube:
 	                  ----------------
