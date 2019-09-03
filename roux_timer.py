@@ -65,6 +65,8 @@ for colour in COLOUR_NAMES:
 
 DEFAULT_PERM = perm.Permutation(53)
 
+
+
 def generate_moves():
 	y2 = DEFAULT_CUBE
 	M2 = DEFAULT_CUBE
@@ -174,18 +176,9 @@ class roux_timer():
 		self.colour_win.title("Edit Colour Scheme | RouxTimer")
 		colour_canv = Canvas(self.colour_win, height = 130, width = 170, bg = "#aaaaaa")
 		colour_canv.pack()
-		csU = colour_canv.create_rectangle(50,  10, 20+60,  20+20,  fill = self.colour_dict.get("Y"))
-		colour_canv.tag_bind(csU, '<ButtonPress-1>', lambda _: self.change_particular_colour("U"))
-		csL = colour_canv.create_rectangle(10,  50, 20+20,  20+60,  fill = self.colour_dict.get("B"))
-		colour_canv.tag_bind(csL, '<ButtonPress-1>', lambda _: self.change_particular_colour("L"))
-		csF = colour_canv.create_rectangle(50,  50, 20+60,  20+60,  fill = self.colour_dict.get("R"))
-		colour_canv.tag_bind(csF, '<ButtonPress-1>', lambda _: self.change_particular_colour("F"))
-		csR = colour_canv.create_rectangle(90,  50, 20+100, 20+60,  fill = self.colour_dict.get("G"))
-		colour_canv.tag_bind(csR, '<ButtonPress-1>', lambda _: self.change_particular_colour("R"))
-		csB = colour_canv.create_rectangle(130, 50, 20+140, 20+60,  fill = self.colour_dict.get("O"))
-		colour_canv.tag_bind(csB, '<ButtonPress-1>', lambda _: self.change_particular_colour("B"))
-		csD = colour_canv.create_rectangle(50,  90, 20+60,  20+100, fill = self.colour_dict.get("W"))
-		colour_canv.tag_bind(csD, '<ButtonPress-1>', lambda _: self.change_particular_colour("D"))
+		self.reset_cube()
+		for bn in self.generic_print_cube(colour_canv, 30, 0, 0):
+			colour_canv.tag_bind(bn[0], '<ButtonPress-1>', lambda _: self.change_particular_colour(bn[1]))
 
 	def LSE_scramble(self):
 		self.cube   	= SOLVED_CUBE
@@ -227,11 +220,15 @@ class roux_timer():
 	def print_cube(self):
 		for x in range(3):
 			for y in range(3):
-				self.cube_space.create_rectangle(10*x+50,  10*y+10, 10*x+60,  10*y+20,  fill = self.colour_dict.get(self.cube[x+3*y   ]))
-				self.cube_space.create_rectangle(10*x+10,  10*y+50, 10*x+20,  10*y+60,  fill = self.colour_dict.get(self.cube[x+3*y+9 ]))
-				self.cube_space.create_rectangle(10*x+50,  10*y+50, 10*x+60,  10*y+60,  fill = self.colour_dict.get(self.cube[x+3*y+18]))
-				self.cube_space.create_rectangle(10*x+90,  10*y+50, 10*x+100, 10*y+60,  fill = self.colour_dict.get(self.cube[x+3*y+27]))
-				self.cube_space.create_rectangle(10*x+130, 10*y+50, 10*x+140, 10*y+60,  fill = self.colour_dict.get(self.cube[x+3*y+36]))
-				self.cube_space.create_rectangle(10*x+50,  10*y+90, 10*x+60,  10*y+100, fill = self.colour_dict.get(self.cube[x+3*y+45]))
+				self.generic_print_cube(self.cube_space, 10, x, y)
+
+	def generic_print_cube(self, canv, dim, x, y):
+		csU = canv.create_rectangle(10*x+50,  10*y+10, 10*x+50+dim,  10*y+10+dim,  fill = self.colour_dict.get(self.cube[x+3*y   ]))
+		csL = canv.create_rectangle(10*x+10,  10*y+50, 10*x+10+dim,  10*y+50+dim,  fill = self.colour_dict.get(self.cube[x+3*y+9 ]))
+		csF = canv.create_rectangle(10*x+50,  10*y+50, 10*x+50+dim,  10*y+50+dim,  fill = self.colour_dict.get(self.cube[x+3*y+18]))
+		csR = canv.create_rectangle(10*x+90,  10*y+50, 10*x+90+dim,  10*y+50+dim,  fill = self.colour_dict.get(self.cube[x+3*y+27]))
+		csB = canv.create_rectangle(10*x+130, 10*y+50, 10*x+130+dim, 10*y+50+dim,  fill = self.colour_dict.get(self.cube[x+3*y+36]))
+		csD = canv.create_rectangle(10*x+50,  10*y+90, 10*x+50+dim,  10*y+90+dim,  fill = self.colour_dict.get(self.cube[x+3*y+45]))
+		return([csU, "U"], [csL, "L"], [csF, "F"], [csR, "R"], [csB, "B"], [csD, "D"])
 
 timer = roux_timer()
