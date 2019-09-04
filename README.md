@@ -1,19 +1,19 @@
 # Roux-Cube-Timer
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ad82c1eddb8e4881a98d71255e035ee9)](https://app.codacy.com/app/jupiterian.is/Roux-Cube-Timer?utm_source=github.com&utm_medium=referral&utm_content=JupiLogy/Roux-Cube-Timer&utm_campaign=Badge_Grade_Dashboard)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ad82c1eddb8e4881a98d71255e035ee9)](https://app.codacy.com/app/jupiterian.is/Roux-Cube-Timer?utm_source=github.com&utm_medium=referral&utm_content=JupiLogy/Roux-Cube-Timer&utm_campaign=Badge_Grade_Dashboard) [![Maintainability](https://api.codeclimate.com/v1/badges/a99a88d28ad37a79dbf6/maintainability)](https://codeclimate.com/github/codeclimate/codeclimate/maintainability) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues)
 
 A cube timer, with random state Roux scrambles built in! (WIP)
-- [How to install](#how-to-install)
-- [How to open](#how-to-open)
-- [Current Features](#current-features)
-- [Requesting Features](#requesting-features)
+-   [How to install](#how-to-install)
+-   [How to open](#how-to-open)
+-   [Current Features](#current-features)
+-   [Requesting Features](#requesting-features)
 
 ## How to install
-- Download setup.py and roux_timer.py into a folder called roux_timer
-- Install python 3.3 or later from [the official website](https://www.python.org/downloads/)
-- Open cmd
-- Navigate to inside the roux_timer folder in cmd
-- Type `pip install .` into cmd
+-   Download setup.py and roux_timer.py into a folder called roux_timer
+-   Install python 3.3 or later from [the official website](https://www.python.org/downloads/)
+-   Open cmd
+-   Navigate to inside the roux_timer folder in cmd
+-   Type `pip install .` into cmd
 
 Now, it should be installed.
 
@@ -23,7 +23,7 @@ To open the timer, navigate to inside the roux_timer folder in cmd (if you just 
 Good luck, and if there are any issues, please open an issue on github, or email me at `jupiterian.is@gmail.com`.
 
 ## Current Features
-- LSE scrambles
+-   LSE scrambles
 
 ## Requesting Features
 Go to the issues page on github and open an issue. Feel free to request anything!
