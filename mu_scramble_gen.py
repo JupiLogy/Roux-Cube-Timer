@@ -30,10 +30,7 @@ Cube and piece naming:
                 |___|
 """
 
-import numpy
-import random
 import sympy.combinatorics.permutations as perm
-import sympy.combinatorics.generators as gens
 
 
 def _generate_mu_moves():
@@ -49,7 +46,7 @@ def _generate_mu_moves():
 
 
 MOVES = _generate_mu_moves()
-SOLVED_CUBE = ["U" * 4, "B", "R", "F", "L", "D" * 2, "F", "B"]
+SOLVED_CUBE = ["U", "U", "U", "U", "B", "R", "F", "L", "D", "D", "F", "B"]
 
 
 def _expand(frontier, visited):
@@ -58,19 +55,21 @@ def _expand(frontier, visited):
         for move_index in range(len(MOVES)):
             new_state_scramble = [
                 MOVES[move_index][0](state_scramble[0]),
-                state_scramble[1].append(MOVES[move_index][1]),
+                state_scramble[1] + [MOVES[move_index][1]],
             ]
-            if new_state_scramble[0] not in frontier.union(visited):
+            if new_state_scramble[0] not in [
+                old_scramble[0] for old_scramble in (frontier + visited + new_frontier)
+            ]:
                 new_frontier.append(new_state_scramble)
-    visited = visited.union(frontier)
+    visited = visited + frontier
     frontier = new_frontier
     return visited, frontier
 
 
 def ida_lse(state):
-    visited = frontier = [[state, ""]]
+    visited = frontier = [[state, [""]]]
     while True:
         for state_index in range(len(frontier)):
             if SOLVED_CUBE == frontier[state_index][0]:
-                return frontier[state_index][1]
+                return frontier[state_index][1][1:]
         visited, frontier = _expand(frontier, visited)
