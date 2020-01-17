@@ -44,6 +44,8 @@ from tkinter.colorchooser import askcolor
 import numpy as np
 import sympy.combinatorics.permutations as perm
 import sympy.combinatorics.generators as gens
+from mu_scramble_gen import ida_lse
+from gen_transformations import mu_to_full, full_to_mu
 from tkinter import *
 from rubik_solver import utils
 
@@ -224,9 +226,13 @@ class RouxTimer:
         ) ** corners * perm.Permutation(edge_perm_list)
 
         self.cube = scramble_perm(self.cube)
+        if m2 == 1:
+            self.cube = M2(self.cube)
         order = scramble_perm.order()
         inv_scramble = (scramble_perm ** (order - 2))(self.cube)
         empty = ""
+
+        # scramble = ida_lse(full_to_mu(self.cube))
         non_M2_scramble = utils.solve(empty.join(inv_scramble), "Kociemba")
         M2_scramble = []
         if m2 == 1:
