@@ -65,11 +65,10 @@
 """
 
 import sympy.combinatorics.permutations as perm
+from progress.bar import Bar
 
                  # 0, 1, 2, 3, 4, 5, 6, 7, 8,  9, 10, 11
 p_state_indices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 14, 16]
-
-p_tab = {_get_p_state(SOLVED_CUBE): 0}
 
 
 def _get_p_state(state):
@@ -85,7 +84,7 @@ def _generate_mu_moves():
     M2 = M * M
     Mp = M2 * M
 
-    return [U, "U"], [U2, "U2"], [Up, "U'"], [M, "M"], [M2, "M2"], [Mp, "M'"]
+    return [U, U2, Up, M, M2, Mp]
 
 
 MOVES = _generate_mu_moves()
@@ -112,57 +111,22 @@ SOLVED_CUBE = [
     "B",
 ]
 
+p_tab = {_get_p_state(SOLVED_CUBE): 0}
 
-def _expand(visited, frontier):
-    print('exploring...')
-    new_frontier = []
-    for state_scramble in frontier:
-        for move_index in range(len(MOVES)):
-            new_state_scramble = [
-                MOVES[move_index][0](state_scramble[0]),
-                [MOVES[move_index][1]] + state_scramble[1],
-            ]
-            if new_state_scramble[0] not in [
-                symmetries(old_state[0]) for old_state in (frontier + visited + new_frontier)
-            ]:
-                new_frontier.append(new_state_scramble)
-    visited = visited + frontier
-    frontier = new_frontier
-    print(len(visited))
-    return visited, frontier
+depth = 0
+frontier = [SOLVED_CUBE]
 
+bar = Bar('Generating MU scrambles...', max = 20)
+while frontier != []:
+    old_frontier = frontier.copy()
+    frontier = []
 
-def symmetries(state):
-    x_symmetry = perm.Permutation(19)(1, 3)(5, 7)(13, 15)
-    y_symmetry = perm.Permutation(0, 2)(4, 6)(8, 9)(10, 11)(17, 19)
+    depth += 1
 
-    def x_flip(state):
-        for piece in state:
-            if piece == 'R':
-                piece = 'L'
-            elif piece == 'L':
-                piece = 'R'
-        return state
-
-    def y_flip(state):
-        for piece in state:
-            if piece == 'F':
-                piece = 'B'
-            elif piece == 'B':
-                piece = 'F'
-        return state
-
-    x_state = x_symmetry(x_flip(state))
-    y_state = y_symmetry(y_flip(state))
-    xy_state = x_symmetry(y_symmetry(state))
-
-    return state, x_state, y_state, xy_state
-
-
-def ida_lse(state):
-    visited = frontier = [[state, [""]]]
-    while True:
-        for state_index in range(len(frontier)):
-            if SOLVED_CUBE == frontier[state_index][0]:
-                return frontier[state_index][1][:-1]
-        visited, frontier = _expand(visited, frontier)
+    for state in old_frontier:
+        for move in MOVES:
+            if _get_p_state(move(state)) not in p_tab:
+                p_tab[_get_p_state(move(state))] = depth
+                frontier.append(move(state))
+    bar.next()
+bar.finish()
